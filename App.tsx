@@ -1,20 +1,26 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import { Text, View, StatusBar } from "react-native";
+import { NativeBaseProvider } from "native-base";
+
+import {
+  useFonts,
+  Roboto_400Regular,
+  Roboto_700Bold,
+} from "@expo-google-fonts/roboto";
+import { Loading } from "@components/loading/loading";
+import { SignIn } from "@screens/signIn/signIn";
+import { SignUp } from "@screens/signUp/signUp";
+import { Routes } from "@routes/index";
 
 export default function App() {
+  const [renderFontes] = useFonts({ Roboto_400Regular, Roboto_700Bold });
   return (
-    <View style={styles.container}>
-      <Text>My Gym!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NativeBaseProvider>
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent
+      />
+      {renderFontes ? <Routes /> : <Loading />}
+    </NativeBaseProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
