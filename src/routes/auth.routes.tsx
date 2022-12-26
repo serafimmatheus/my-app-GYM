@@ -4,7 +4,7 @@ import {
 } from "@react-navigation/native-stack";
 
 import { SignIn } from "@screens/signIn/signIn";
-import { SignUp } from "@screens/signUp/signUp";
+import { SignUp } from "@screens/signUp/signUpSchema";
 
 type AuthRoutes = {
   signIn: undefined;

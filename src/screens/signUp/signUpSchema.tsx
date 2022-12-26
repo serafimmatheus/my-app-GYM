@@ -1,32 +1,81 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { useNavigation } from "@react-navigation/native";
-import { VStack, Image, Text, Center, Heading, ScrollView } from "native-base";
+import {
+  VStack,
+  Image,
+  Text,
+  Center,
+  Heading,
+  ScrollView,
+  useToast,
+} from "native-base";
+
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 import LogoSvg from "@assets/logo.svg";
 import BackgroudImage from "@assets/background.png";
 
 import { InputStyled } from "@components/inputs/inputStyled";
 import { ButtonStyle } from "@components/buttons/buttonStyle";
+import { Alert } from "react-native";
+import { useAuth } from "@hooks/useAuth";
+import { api } from "@services/index";
+import { AppError } from "@utils/AppError";
 
 type IPropsForms = {
   name: string;
   email: string;
   password: string;
-  passwordConfirm: string;
 };
+
+const schema = yup.object({
+  name: yup.string().required("Informe o nome."),
+  email: yup.string().required("Informe o email.").email("Email inválido."),
+  password: yup
+    .string()
+    .required("Informe a senha.")
+    .min(6, "A senha deve ter no mini 6 caracteres."),
+  passwordConfirm: yup
+    .string()
+    .required("Confirme a senha.")
+    .oneOf([yup.ref("password"), null], "As senhas não conferem."),
+});
 
 export function SignUp() {
   const { goBack } = useNavigation();
+  const { singIn } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const { show } = useToast();
 
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<IPropsForms>();
+  } = useForm<IPropsForms>({
+    resolver: yupResolver(schema),
+  });
 
-  const handleSingUp = (data: IPropsForms) => {
-    console.log(data);
+  const handleSingUp = async ({ name, email, password }: IPropsForms) => {
+    try {
+      setIsLoading(true);
+      await api.post("/users", { name, email, password });
+      singIn(email, password);
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+      const title = isAppError
+        ? error.message
+        : "Não foi possivel criar a conta, tente novamente mais tarde";
+
+      show({
+        title,
+        placement: "top",
+        bgColor: "red.500",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -55,9 +104,6 @@ export function SignUp() {
           <Controller
             control={control}
             name="name"
-            rules={{
-              required: "Informe seu nome *",
-            }}
             render={({ field: { onChange, value } }) => (
               <InputStyled
                 placeholder="Nome"
@@ -71,13 +117,6 @@ export function SignUp() {
           <Controller
             control={control}
             name="email"
-            rules={{
-              required: "Informe seu email *",
-              pattern: {
-                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,}$/i,
-                message: "Formato do e-mail inválido",
-              },
-            }}
             render={({ field: { onChange, value } }) => (
               <InputStyled
                 placeholder="E-mail"
@@ -93,9 +132,6 @@ export function SignUp() {
           <Controller
             control={control}
             name="password"
-            rules={{
-              required: "Informe sua senha *",
-            }}
             render={({ field: { onChange, value } }) => (
               <InputStyled
                 placeholder="Digite uma senha"
@@ -111,9 +147,6 @@ export function SignUp() {
           <Controller
             control={control}
             name="passwordConfirm"
-            rules={{
-              required: "Confirme sua senha *",
-            }}
             render={({ field: { onChange, value } }) => (
               <InputStyled
                 placeholder="Confirme sua senha"

@@ -1,11 +1,14 @@
 import React from "react";
 import { IInputProps, Input, FormControl } from "native-base";
 
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+
 type IProps = IInputProps & {
   errorMessage?: string | null;
 };
 
-export function InputStyled({
+export function InputStyledSchema({
   errorMessage = null,
   isInvalid,
   ...rest

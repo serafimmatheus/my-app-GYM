@@ -3,10 +3,14 @@ import { Heading, HStack, Image, Text, VStack, Icon } from "native-base";
 import { TouchableOpacity, TouchableOpacityProps } from "react-native";
 
 import { Entypo } from "@expo/vector-icons";
+import { ExerciseDTO } from "@dtos/exercisesDTO";
+import { api } from "@services/index";
 
-type Iprops = TouchableOpacityProps & {};
+type Iprops = TouchableOpacityProps & {
+  data: ExerciseDTO;
+};
 
-export function ExerciseCard({ ...rest }: Iprops) {
+export function ExerciseCard({ data, ...rest }: Iprops) {
   return (
     <TouchableOpacity {...rest}>
       <HStack
@@ -19,7 +23,7 @@ export function ExerciseCard({ ...rest }: Iprops) {
       >
         <Image
           source={{
-            uri: "https://www.origym.com.br/upload/remada-unilateral-3.png",
+            uri: `${api.defaults.baseURL}/exercise/thumb/${data.thumb}`,
           }}
           alt="remada unilateral"
           w={16}
@@ -30,11 +34,11 @@ export function ExerciseCard({ ...rest }: Iprops) {
 
         <VStack flex={1}>
           <Heading color="white" fontSize="lg">
-            Remada unilateral
+            {data.name}
           </Heading>
 
           <Text color="white" fontSize="sm" numberOfLines={2}>
-            4 séries x 12 repetiçoes
+            {`${data.series} séries x ${data.repetitions} repetiçoes`}
           </Text>
         </VStack>
 
